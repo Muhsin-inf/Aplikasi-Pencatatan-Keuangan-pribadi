@@ -1,0 +1,26 @@
+RewriteEngine On
+
+ErrorDocument 404 /404.php
+ErrorDocument 403 /403.php
+
+# =========================
+# 1. Redirect .php ke tanpa ekstensi (KECUALI FOLDER API)
+# =========================
+# Baris baru ini memastikan aturan abaikan URL yang berawalan /api/
+RewriteCond %{REQUEST_URI} !^/api/ 
+RewriteCond %{THE_REQUEST} \s/([^.]+)\.php [NC]
+RewriteRule ^ /%1 [R=301,L]
+
+# =========================
+# 2. Handle request tanpa ekstensi → ke .php
+# =========================
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^([^\.]+)$ $1.php [L]
+
+# =========================
+# 3. Optional: hilangkan trailing slash (biar konsisten)
+# =========================
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.+)/$ /$1 [R=301,L]
