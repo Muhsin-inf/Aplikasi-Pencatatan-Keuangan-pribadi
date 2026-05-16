@@ -63,7 +63,7 @@ $query_recent = "SELECT t.*,
     COALESCE(c.color, '#9CA3AF') as color 
     FROM transactions t LEFT JOIN categories c ON t.category_id = c.id 
     WHERE t.user_id = ?" . str_replace("MONTH(date)", "MONTH(t.date)", str_replace("YEAR(date)", "YEAR(t.date)", $date_condition)) . " 
-    ORDER BY t.date DESC LIMIT 5";
+    ORDER BY t.date DESC, t.created_at DESC LIMIT 5"; // <-- PENAMBAHAN t.created_at DESC DI SINI
 
 $stmt_recent = $conn->prepare($query_recent);
 $stmt_recent->bind_param("i", $user_id);

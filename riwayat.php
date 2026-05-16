@@ -24,11 +24,7 @@ $user_name = $_SESSION['user_name'];
 <body class="antialiased text-gray-800 pb-20 md:pb-0">
 
     <?php include 'navbar.php'; ?>
-    <?php include 'components/modal.php'; ?>
     
-    <!-- Modal Transaksi & Kategori agar tombol '+' di Navbar tetap berfungsi -->
-    <?php include 'components/modal_transaksi.php'; ?>
-    <?php include 'components/modal_kategori.php'; ?>
 
     <main class="max-w-4xl mx-auto px-4 py-8">
         
@@ -189,11 +185,15 @@ $user_name = $_SESSION['user_name'];
 
         // FUNGSI HAPUS TRANSAKSI
         function deleteTransaction(id) {
-            // Menggunakan Modal Peringatan Bawaan Anda
-            if (typeof showModal === 'function') {
-                showModal('warning', 'Hapus Transaksi?', 'Data yang dihapus tidak dapat dikembalikan, dan saldo dompet akan dikalkulasi ulang secara otomatis.', () => {
-                    executeDelete(id);
-                });
+            if (typeof showConfirmModal === 'function') {
+                showConfirmModal(
+                    'warning', 
+                    'Hapus Transaksi?', 
+                    'Data yang dihapus tidak dapat dikembalikan. Saldo dompet akan menyesuaikan otomatis.', 
+                    'Ya, Hapus', 
+                    'Batal', 
+                    () => { executeDelete(id); } // Ini adalah confirmCallback
+                );
             } else {
                 if(confirm("Yakin ingin menghapus transaksi ini?")) executeDelete(id);
             }
@@ -208,17 +208,18 @@ $user_name = $_SESSION['user_name'];
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success') {
-                    if (typeof showModal === 'function') {
-                        showModal('success', 'Terhapus', data.message, fetchHistory);
-                    } else {
-                        alert("Terhapus"); fetchHistory();
-                    }
+                    // Jika sukses, munculkan centang hijau lalu ambil data riwayat lagi
+                    showModal('success', 'Terhapus', data.message, fetchHistory);
                 } else {
-                    if (typeof showModal === 'function') showModal('error', 'Gagal', data.message);
-                    else alert("Gagal: " + data.message);
+                    // Jika gagal (seperti memblokir penghapusan hutang), munculkan silang merah.
+                    // Perhatikan: kita TIDAK memberikan callback fetchHistory di sini, 
+                    // sehingga modal akan tetap diam di layar sampai user menekan tombol Tutup.
+                    showModal('error', 'Gagal Dihapus', data.message);
                 }
             })
-            .catch(err => console.error(err));
+            .catch(err => {
+                showModal('error', 'Kesalahan', 'Gagal terhubung ke server.');
+            });
         }
 
         // Panggil saat halaman pertama kali dimuat

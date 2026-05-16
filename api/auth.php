@@ -192,21 +192,34 @@ if (isset($_GET['action'])) {
                 $ins = $conn->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
                 $ins->bind_param("sss", $u['name'], $u['email'], $u['password']);
                 $ins->execute();
-                $new_id = $conn->insert_id;
                 
-                // Beri dompet awal untuk user baru
+                $new_id = $conn->insert_id;
+
+                // --- TAMBAHAN: BUAT DOMPET DEFAULT ---
                 $conn->query("INSERT INTO wallets (user_id, name, icon_name, color) VALUES ($new_id, 'Uang Tunai', 'wallet', '#3B82F6')");
 
+                // --- TAMBAHAN: BUAT KATEGORI DEFAULT ---
+                // Kita buat kategori 'Hutang' khusus agar bisa dipakai di api/debt.php nanti
+                $default_categories = [
+                    ['Gaji', 'income', 'cash-outline'],
+                    ['Hutang & Pinjaman', 'income', 'card-outline'], // Ini yang akan kita pakai
+                    ['Makanan', 'expense', 'fast-food-outline'],
+                    ['Transportasi', 'expense', 'bus-outline'],
+                    ['Belanja', 'expense', 'cart-outline']
+                ];
+
+                $stmt_cat = $conn->prepare("INSERT INTO categories (user_id, name, type, icon_name) VALUES (?, ?, ?, ?)");
+                foreach ($default_categories as $cat) {
+                    $stmt_cat->bind_param("isss", $new_id, $cat[0], $cat[1], $cat[2]);
+                    $stmt_cat->execute();
+                }
+
+                // Auto Login
                 $_SESSION['user_id'] = $new_id;
                 $_SESSION['user_name'] = $u['name'];
-                unset($_SESSION['temp_register'], $_SESSION['otp_purpose'], $_SESSION['last_otp_email']);
                 
+                unset($_SESSION['temp_register'], $_SESSION['otp_purpose'], $_SESSION['last_otp_email']);
                 echo json_encode(["status" => "success", "action" => "redirect", "target" => "index.php"]);
-            } 
-            elseif ($purpose === 'reset') {
-                // Jangan reset password di sini, tapi beritahu frontend untuk menampilkan form password baru
-                $_SESSION['reset_verified'] = true; // Tandai sesi bahwa OTP sudah sah
-                echo json_encode(["status" => "success", "action" => "show_reset_form"]);
             }
         } else { 
             echo json_encode(["status" => "error", "message" => "Kode OTP salah atau sudah kadaluarsa!"]); 

@@ -78,19 +78,36 @@ switch ($method) {
             exit;
         }
 
-        $stmt = $conn->prepare("DELETE FROM transactions WHERE id = ? AND user_id = ?");
-        $stmt->bind_param("ii", $id, $user_id);
+        // 1. Cek dulu apakah transaksi ini bagian dari Hutang/Paylater
+        $stmt_check = $conn->prepare("SELECT debt_id FROM transactions WHERE id = ? AND user_id = ?");
+        $stmt_check->bind_param("ii", $id, $user_id);
+        $stmt_check->execute();
+        $trans = $stmt_check->get_result()->fetch_assoc();
+
+        if (!$trans) {
+            echo json_encode(["status" => "error", "message" => "Transaksi tidak ditemukan."]);
+            exit;
+        }
+
+        // 2. Jika transaksi memiliki debt_id, blokir penghapusan
+        if (!empty($trans['debt_id'])) {
+            echo json_encode([
+                "status" => "error", 
+                "message" => "Riwayat tidak dapat dihapus. Silakan hapus data di halaman Hutang, maka semua riwayat terkait akan otomatis terhapus."
+            ]);
+            exit;
+        }
+
+        // 3. Jika bukan transaksi hutang, lanjutkan penghapusan biasa
+        $stmt_del = $conn->prepare("DELETE FROM transactions WHERE id = ? AND user_id = ?");
+        $stmt_del->bind_param("ii", $id, $user_id);
         
-        if ($stmt->execute()) {
+        if ($stmt_del->execute()) {
             echo json_encode(["status" => "success", "message" => "Transaksi berhasil dihapus."]);
         } else {
-            echo json_encode(["status" => "error", "message" => "Gagal menghapus transaksi."]);
+            echo json_encode(["status" => "error", "message" => "Gagal menghapus: " . $conn->error]);
         }
-        $stmt->close();
-        break;
-
-    default:
-        echo json_encode(["status" => "error", "message" => "Method HTTP tidak diizinkan."]);
+        $stmt_del->close();
         break;
 }
 

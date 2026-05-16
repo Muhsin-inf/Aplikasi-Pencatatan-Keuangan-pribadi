@@ -248,6 +248,7 @@ $user_name = $_SESSION['user_name'];
                         // Render Riwayat dengan Perbaikan Ikon Gambar & Overflow
                         const listContainer = document.getElementById('transactionList');
                         listContainer.innerHTML = '';
+                        
 
                         if(data.recent_transactions.length > 0) {
                             data.recent_transactions.forEach(trx => {
@@ -257,6 +258,7 @@ $user_name = $_SESSION['user_name'];
                                 
                                 const dateObj = new Date(trx.date);
                                 const dateStr = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+                                let timeStr = trx.created_at ? trx.created_at.split(' ')[1].substring(0, 5) : '';
 
                                 // DETEKSI IKON GAMBAR (Lokal vs FontAwesome)
                                 const safeIconTrx = trx.icon_name ? trx.icon_name : 'wallet';
@@ -276,7 +278,7 @@ $user_name = $_SESSION['user_name'];
                                             </div>
                                             <div class="flex-1 min-w-0">
                                                 <p class="font-bold text-gray-800 text-sm md:text-base mb-0.5 truncate">${trx.note || trx.cat_name}</p>
-                                                <p class="text-[10px] md:text-xs font-medium text-gray-400 truncate">${trx.cat_name} • ${dateStr}</p>
+                                                <p class="text-[10px] md:text-xs font-medium text-gray-400 truncate">${trx.cat_name} • ${dateStr}, ${timeStr} WIB</p>
                                             </div>
                                         </div>
                                         

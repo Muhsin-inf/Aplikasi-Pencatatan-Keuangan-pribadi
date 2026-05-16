@@ -50,8 +50,9 @@ if (isset($_SESSION['user_id'])) {
 
             <div class="hidden md:flex space-x-8">
                 <a href="index.php" class="<?= ($current_page == 'index') ? 'text-blue-600 font-bold border-b-2 border-blue-600' : 'text-gray-400 hover:text-gray-800 font-medium' ?> transition-colors px-1 py-2">Beranda</a>
-                <a href="manajemen.php" class="<?= ($current_page == 'manajemen') ? 'text-blue-600 font-bold border-b-2 border-blue-600' : 'text-gray-400 hover:text-gray-800 font-medium' ?> transition-colors px-1 py-2">Manajemen</a>
                 <a href="riwayat.php" class="<?= ($current_page == 'riwayat') ? 'text-blue-600 font-bold border-b-2 border-blue-600' : 'text-gray-400 hover:text-gray-800 font-medium' ?> transition-colors px-1 py-2">Riwayat</a>
+                <a href="hutang.php" class="<?= ($current_page == 'hutang') ? 'text-blue-600 font-bold border-b-2 border-blue-600' : 'text-gray-400 hover:text-gray-800 font-medium' ?> transition-colors px-1 py-2">Hutang</a>
+                <a href="berulang.php" class="<?= ($current_page == 'berulang') ? 'text-blue-600 font-bold border-b-2 border-blue-600' : 'text-gray-400 hover:text-gray-800 font-medium' ?> transition-colors px-1 py-2">Langganan</a>
             </div>
 
             <div class="flex items-center gap-5">
@@ -70,15 +71,21 @@ if (isset($_SESSION['user_id'])) {
                 
                 <div class="relative">
                     <img id="navProfileBtn" class="h-11 w-11 rounded-full object-cover border-2 border-white shadow-md cursor-pointer hover:scale-105 transition-transform" src="<?= htmlspecialchars($nav_photo_url) ?>" alt="Profil">
-                    
+                                    
                     <div id="navProfileMenu" class="hidden absolute right-0 mt-3 w-48 bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden transform origin-top-right transition-all z-50">
                         <div class="md:hidden px-5 py-3 border-b border-gray-50 bg-gray-50">
                             <p class="text-sm font-bold text-gray-800 truncate"><?= htmlspecialchars($nav_user_name) ?></p>
                             <p class="text-xs text-gray-500"><?= htmlspecialchars($nav_user_role) ?></p>
                         </div>
+                        
                         <a href="profil.php" class="flex items-center px-5 py-3.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-50">
                             <i class="fas fa-cog text-gray-900 w-6"></i> Pengaturan
                         </a>
+                        
+                        <a href="manajemen.php" class="flex items-center px-5 py-3.5 text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors border-b border-gray-50">
+                            <i class="fas fa-wallet text-gray-900 w-6"></i> Dompet & Kategori
+                        </a>
+                        
                         <a href="api/auth.php?action=logout" class="flex items-center px-5 py-3.5 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors">
                             <i class="fas fa-sign-out-alt text-red-600 w-6"></i> Logout
                         </a>
